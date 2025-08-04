@@ -1,0 +1,28 @@
+#Deploy Desktop version
+
+name: Build Avalonia App
+
+on:
+    push:
+    
+jobs :
+    build :
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v3
+            - name: Setup .NET Core
+              uses: actions/setup-dotnet@v3
+              with:
+                dotnet-version: 9.0.x
+            
+            - name: Install dependencies for Desktop version
+              run: dotnet restore ./AvaloniaIconTool/AvaloniaIconTool.Desktop/AvaloniaIconTool.Desktop.csproj
+
+            - name: Build the Avalonia Windows project
+              run: dotnet build ./AvaloniaIconTool/AvaloniaIconTool.Desktop/AvaloniaIconTool.Desktop.csproj --configuration Debug --arch x64 --output .\Build\Win64
+
+            - name: Add MSBuild to PATH
+              uses: microsoft/setup-msbuild@v2
+
+            - name: Build C++ binaries for Debug
+              run: msbuild ..\AvaloniaIconToolDLL\AvaloniaIconToolDLL.vcxproj /p:configuration=debug /p:platform=x64
